@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,4 +99,155 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* React Flow Styles */
+.react-flow__node {
+  @apply rounded-lg transition-all duration-200 ease-in-out;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+.react-flow__node-custom {
+  @apply bg-flow-node-bg border border-flow-node-border shadow-node flex flex-col;
+  padding: 12px;
+  border-radius: 8px;
+  width: 200px;
+}
+
+.react-flow__node.selected {
+  @apply border-primary shadow-node-selected;
+}
+
+.react-flow__handle {
+  @apply bg-flow-handle border-2 border-flow-handle-border transition-all duration-200;
+  width: 8px;
+  height: 8px;
+}
+
+.react-flow__handle:hover {
+  @apply bg-white border-primary;
+}
+
+.react-flow__edge-path {
+  @apply stroke-flow-edge;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  @apply stroke-flow-edge-selected;
+  stroke-width: 2.5;
+}
+
+.react-flow__edge-text {
+  @apply fill-flow-edge-label text-xs font-medium;
+}
+
+.react-flow__controls {
+  @apply rounded-lg overflow-hidden shadow-md;
+}
+
+.react-flow__controls-button {
+  @apply border border-gray-200 bg-white hover:bg-gray-50 text-gray-700;
+}
+
+.react-flow__minimap {
+  @apply rounded-lg overflow-hidden border border-gray-200 shadow-md;
+}
+
+.react-flow__attribution {
+  @apply hidden;
+}
+
+.node-header {
+  @apply flex items-center justify-start mb-2;
+}
+
+.node-header-icon {
+  @apply mr-2 flex items-center justify-center rounded-md p-1.5 text-white;
+  width: 28px;
+  height: 28px;
+}
+
+.node-title {
+  @apply text-sm font-medium text-gray-900 truncate flex-1;
+}
+
+.node-content {
+  @apply text-xs text-gray-500;
+}
+
+.node-badge {
+  @apply text-xs px-1.5 py-0.5 rounded-full;
+}
+
+.node-footer {
+  @apply flex items-center justify-end space-x-2 mt-3 pt-2 border-t border-gray-100;
+}
+
+.sidebar-container {
+  @apply flex flex-col h-full bg-white border-r border-gray-200 w-64 p-4 shadow-md z-10;
+}
+
+.sidebar-section {
+  @apply mb-6;
+}
+
+.sidebar-section-title {
+  @apply text-sm font-medium text-gray-900 mb-2;
+}
+
+.sidebar-item {
+  @apply flex items-center p-2 mb-1 rounded-md cursor-grab text-gray-700 hover:bg-gray-50 transition-colors;
+}
+
+.sidebar-item-icon {
+  @apply rounded-md p-1.5 mr-2 flex items-center justify-center;
+  width: 24px;
+  height: 24px;
+}
+
+.properties-panel {
+  @apply bg-white border-l border-gray-200 w-72 p-4 shadow-md z-10 overflow-auto;
+}
+
+.flow-controls {
+  @apply absolute top-4 right-4 flex items-center space-x-2 z-10;
+}
+
+.flow-progress-bar {
+  @apply absolute top-0 left-0 right-0 h-1 bg-blue-100 z-20;
+}
+
+.flow-progress-indicator {
+  @apply h-1 bg-primary transition-all duration-200 ease-in-out;
+}
+
+/* Animation for new nodes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Glass morphism for selected nodes */
+.glass-morphism {
+  @apply bg-white bg-opacity-80 backdrop-filter backdrop-blur-sm border border-white border-opacity-40;
+}
+
+/* Tooltips */
+.tooltip {
+  @apply absolute px-2 py-1 text-xs text-white bg-gray-900 rounded pointer-events-none opacity-0 transition-opacity duration-200 z-50 whitespace-nowrap;
+}
+
+.tooltip-visible {
+  @apply opacity-100;
 }
