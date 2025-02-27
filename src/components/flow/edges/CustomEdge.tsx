@@ -8,6 +8,15 @@ import {
   EdgeProps,
 } from '@xyflow/react';
 
+interface CustomEdgeData {
+  label?: string;
+}
+
+// Extend EdgeProps to ensure data is of CustomEdgeData type
+interface CustomEdgeProps extends EdgeProps {
+  data?: CustomEdgeData;
+}
+
 const CustomEdge = ({
   id,
   sourceX,
@@ -19,7 +28,7 @@ const CustomEdge = ({
   style = {},
   markerEnd,
   data,
-}: EdgeProps) => {
+}: CustomEdgeProps) => {
   const { setEdges } = useReactFlow();
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,

@@ -15,6 +15,7 @@ import {
   Node,
   useReactFlow,
   MarkerType,
+  ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -73,12 +74,12 @@ const FlowEditorContent = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [showPropertiesPanel, setShowPropertiesPanel] = useState<boolean>(false);
 
-  const { project } = useReactFlow();
+  const reactFlowUtil = useReactFlow();
 
   // Handle node drag from sidebar
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -98,7 +99,8 @@ const FlowEditorContent = () => {
         return;
       }
 
-      const position = reactFlowInstance.project({
+      // Use screenToFlowPosition instead of project
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
@@ -181,6 +183,7 @@ const FlowEditorContent = () => {
   // Handle connection between nodes
   const onConnect = useCallback(
     (params: Connection) => {
+      // Create a new edge with properly typed data
       const newEdge = {
         ...params,
         id: `e_${params.source}_${params.target}_${Date.now()}`,
@@ -244,14 +247,32 @@ const FlowEditorContent = () => {
   const onLoad = useCallback(() => {
     const savedFlow = localStorage.getItem('flow-data');
     if (savedFlow) {
-      const flowData = JSON.parse(savedFlow);
-      setNodes(flowData.nodes || []);
-      setEdges(flowData.edges || []);
-      toast({
-        title: 'Flow Loaded',
-        description: 'Your saved flow has been loaded successfully.',
-        variant: 'default',
-      });
+      try {
+        const flowData = JSON.parse(savedFlow);
+        // Handle the edges data properly by ensuring it has the required format
+        const typedNodes = flowData.nodes || [];
+        const typedEdges = (flowData.edges || []).map((edge: any) => ({
+          ...edge,
+          // Ensure each edge has a data property with a label
+          data: edge.data || { label: 'Connection' },
+        }));
+        
+        setNodes(typedNodes);
+        setEdges(typedEdges);
+        
+        toast({
+          title: 'Flow Loaded',
+          description: 'Your saved flow has been loaded successfully.',
+          variant: 'default',
+        });
+      } catch (error) {
+        console.error('Error loading flow:', error);
+        toast({
+          title: 'Error Loading Flow',
+          description: 'There was an error loading your flow.',
+          variant: 'destructive',
+        });
+      }
     } else {
       toast({
         title: 'No Saved Flow',

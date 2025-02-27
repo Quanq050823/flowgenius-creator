@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { X } from 'lucide-react';
 
@@ -9,25 +9,47 @@ type PropertiesPanelProps = {
   onClose: () => void;
 };
 
+interface NodeSettings {
+  spreadsheetId?: string;
+  sheetName?: string;
+  adAccountId?: string;
+  campaignId?: string;
+  apiProvider?: string;
+  apiKey?: string;
+  promptTemplate?: string;
+  calendarId?: string;
+  duration?: number;
+  webhookUrl?: string;
+  method?: string;
+  field?: string;
+  operator?: string;
+  value?: string;
+  provider?: string;
+  subject?: string;
+  template?: string;
+  [key: string]: string | number | undefined;
+}
+
 const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ 
   selectedNode, 
   onChange,
   onClose
 }) => {
-  const [localSettings, setLocalSettings] = useState<any>({});
+  const [localSettings, setLocalSettings] = useState<NodeSettings>({});
   
   if (!selectedNode) {
     return null;
   }
   
   // Initialize local settings if node changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedNode) {
-      setLocalSettings(selectedNode.data?.settings || {});
+      const nodeSettings = selectedNode.data?.settings || {};
+      setLocalSettings(nodeSettings as NodeSettings);
     }
   }, [selectedNode]);
   
-  const updateSettings = (key: string, value: any) => {
+  const updateSettings = (key: string, value: string | number) => {
     const updatedSettings = { ...localSettings, [key]: value };
     setLocalSettings(updatedSettings);
     
@@ -354,11 +376,14 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
       
       <div className="mb-4 p-3 bg-gray-50 rounded-md">
         <div className="flex items-center mb-2">
-          <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: selectedNode.data?.color || '#94a3b8' }}></div>
-          <h4 className="font-medium">{selectedNode.data?.label || 'Unknown Node'}</h4>
+          <div 
+            className="w-4 h-4 rounded-full mr-2" 
+            style={{ backgroundColor: (selectedNode.data?.color as string) || '#94a3b8' }}
+          ></div>
+          <h4 className="font-medium">{(selectedNode.data?.label as string) || 'Unknown Node'}</h4>
         </div>
         <div className="text-xs text-gray-500">
-          {selectedNode.data?.description || 'No description available'}
+          {(selectedNode.data?.description as string) || 'No description available'}
         </div>
       </div>
       
@@ -369,7 +394,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         <input
           type="text"
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          value={selectedNode.data?.label || ''}
+          value={(selectedNode.data?.label as string) || ''}
           onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, label: e.target.value })}
           placeholder="Enter node name"
         />
@@ -382,7 +407,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         <textarea
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           rows={2}
-          value={selectedNode.data?.description || ''}
+          value={(selectedNode.data?.description as string) || ''}
           onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, description: e.target.value })}
           placeholder="Enter description"
         />
