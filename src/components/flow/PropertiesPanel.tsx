@@ -1,7 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { X } from 'lucide-react';
+import { 
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  IconButton,
+  Divider,
+  Chip,
+  styled,
+  SelectChangeEvent
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 type PropertiesPanelProps = {
   selectedNode: Node | null;
@@ -29,6 +44,39 @@ interface NodeSettings {
   template?: string;
   [key: string]: string | number | undefined;
 }
+
+const PanelContainer = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderLeft: `1px solid ${theme.palette.divider}`,
+  width: '280px',
+  height: '100%',
+  padding: theme.spacing(2),
+  boxShadow: theme.shadows[2],
+  zIndex: 10,
+  overflow: 'auto',
+  animation: 'slideInRight 0.3s ease-out',
+  '@keyframes slideInRight': {
+    from: { transform: 'translateX(100%)' },
+    to: { transform: 'translateX(0)' },
+  },
+}));
+
+const NodeInfoCard = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  backgroundColor: theme.palette.grey[50],
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(2),
+}));
+
+const NodeColorIndicator = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'bgcolor',
+})<{ bgcolor: string }>(({ bgcolor }) => ({
+  width: '16px',
+  height: '16px',
+  borderRadius: '50%',
+  backgroundColor: bgcolor || '#94a3b8',
+  marginRight: '8px',
+}));
 
 const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ 
   selectedNode, 
@@ -60,6 +108,18 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     });
   };
   
+  const handleTextChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateSettings(key, event.target.value);
+  };
+  
+  const handleSelectChange = (key: string) => (event: SelectChangeEvent) => {
+    updateSettings(key, event.target.value);
+  };
+  
+  const handleNumberChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateSettings(key, parseInt(event.target.value) || 0);
+  };
+  
   const renderSettings = () => {
     // Different node types have different settings
     const nodeType = selectedNode.type || 'default';
@@ -68,363 +128,329 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
       case 'googleSheets':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Spreadsheet ID
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.spreadsheetId || ''}
-                onChange={(e) => updateSettings('spreadsheetId', e.target.value)}
-                placeholder="Enter spreadsheet ID"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Sheet Name
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.sheetName || ''}
-                onChange={(e) => updateSettings('sheetName', e.target.value)}
-                placeholder="Enter sheet name"
-              />
-            </div>
+            <TextField
+              fullWidth
+              size="small"
+              label="Spreadsheet ID"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.spreadsheetId || ''}
+              onChange={handleTextChange('spreadsheetId')}
+              placeholder="Enter spreadsheet ID"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Sheet Name"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.sheetName || ''}
+              onChange={handleTextChange('sheetName')}
+              placeholder="Enter sheet name"
+            />
           </>
         );
         
       case 'facebookAds':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Ad Account ID
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.adAccountId || ''}
-                onChange={(e) => updateSettings('adAccountId', e.target.value)}
-                placeholder="Enter ad account ID"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Campaign ID
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.campaignId || ''}
-                onChange={(e) => updateSettings('campaignId', e.target.value)}
-                placeholder="Enter campaign ID"
-              />
-            </div>
+            <TextField
+              fullWidth
+              size="small"
+              label="Ad Account ID"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.adAccountId || ''}
+              onChange={handleTextChange('adAccountId')}
+              placeholder="Enter ad account ID"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Campaign ID"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.campaignId || ''}
+              onChange={handleTextChange('campaignId')}
+              placeholder="Enter campaign ID"
+            />
           </>
         );
         
       case 'aiCall':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                API Provider
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel>API Provider</InputLabel>
+              <Select
                 value={localSettings.apiProvider || 'openai'}
-                onChange={(e) => updateSettings('apiProvider', e.target.value)}
+                onChange={handleSelectChange('apiProvider')}
+                label="API Provider"
               >
-                <option value="openai">OpenAI</option>
-                <option value="twilio">Twilio</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                API Key
-              </label>
-              <input
-                type="password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.apiKey || ''}
-                onChange={(e) => updateSettings('apiKey', e.target.value)}
-                placeholder="Enter API key"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Prompt Template
-              </label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                rows={3}
-                value={localSettings.promptTemplate || ''}
-                onChange={(e) => updateSettings('promptTemplate', e.target.value)}
-                placeholder="Enter prompt template"
-              />
-            </div>
+                <MenuItem value="openai">OpenAI</MenuItem>
+                <MenuItem value="twilio">Twilio</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              size="small"
+              label="API Key"
+              variant="outlined"
+              margin="normal"
+              type="password"
+              value={localSettings.apiKey || ''}
+              onChange={handleTextChange('apiKey')}
+              placeholder="Enter API key"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Prompt Template"
+              variant="outlined"
+              margin="normal"
+              multiline
+              rows={3}
+              value={localSettings.promptTemplate || ''}
+              onChange={handleTextChange('promptTemplate')}
+              placeholder="Enter prompt template"
+            />
           </>
         );
         
       case 'calendar':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Calendar ID
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.calendarId || ''}
-                onChange={(e) => updateSettings('calendarId', e.target.value)}
-                placeholder="Enter calendar ID"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Event Duration (minutes)
-              </label>
-              <input
-                type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.duration || 30}
-                onChange={(e) => updateSettings('duration', parseInt(e.target.value))}
-                min="5"
-                max="240"
-              />
-            </div>
+            <TextField
+              fullWidth
+              size="small"
+              label="Calendar ID"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.calendarId || ''}
+              onChange={handleTextChange('calendarId')}
+              placeholder="Enter calendar ID"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Event Duration (minutes)"
+              variant="outlined"
+              margin="normal"
+              type="number"
+              InputProps={{ inputProps: { min: 5, max: 240 } }}
+              value={localSettings.duration || 30}
+              onChange={handleNumberChange('duration')}
+            />
           </>
         );
         
       case 'webhook':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Webhook URL
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.webhookUrl || ''}
-                onChange={(e) => updateSettings('webhookUrl', e.target.value)}
-                placeholder="Enter webhook URL"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Method
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            <TextField
+              fullWidth
+              size="small"
+              label="Webhook URL"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.webhookUrl || ''}
+              onChange={handleTextChange('webhookUrl')}
+              placeholder="Enter webhook URL"
+            />
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel>Method</InputLabel>
+              <Select
                 value={localSettings.method || 'POST'}
-                onChange={(e) => updateSettings('method', e.target.value)}
+                onChange={handleSelectChange('method')}
+                label="Method"
               >
-                <option value="GET">GET</option>
-                <option value="POST">POST</option>
-                <option value="PUT">PUT</option>
-                <option value="DELETE">DELETE</option>
-              </select>
-            </div>
+                <MenuItem value="GET">GET</MenuItem>
+                <MenuItem value="POST">POST</MenuItem>
+                <MenuItem value="PUT">PUT</MenuItem>
+                <MenuItem value="DELETE">DELETE</MenuItem>
+              </Select>
+            </FormControl>
           </>
         );
         
       case 'condition':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Condition Field
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.field || ''}
-                onChange={(e) => updateSettings('field', e.target.value)}
-                placeholder="Enter field name"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Operator
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            <TextField
+              fullWidth
+              size="small"
+              label="Condition Field"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.field || ''}
+              onChange={handleTextChange('field')}
+              placeholder="Enter field name"
+            />
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel>Operator</InputLabel>
+              <Select
                 value={localSettings.operator || 'equals'}
-                onChange={(e) => updateSettings('operator', e.target.value)}
+                onChange={handleSelectChange('operator')}
+                label="Operator"
               >
-                <option value="equals">Equals</option>
-                <option value="notEquals">Not Equals</option>
-                <option value="contains">Contains</option>
-                <option value="greaterThan">Greater Than</option>
-                <option value="lessThan">Less Than</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Value
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.value || ''}
-                onChange={(e) => updateSettings('value', e.target.value)}
-                placeholder="Enter value to compare"
-              />
-            </div>
+                <MenuItem value="equals">Equals</MenuItem>
+                <MenuItem value="notEquals">Not Equals</MenuItem>
+                <MenuItem value="contains">Contains</MenuItem>
+                <MenuItem value="greaterThan">Greater Than</MenuItem>
+                <MenuItem value="lessThan">Less Than</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              size="small"
+              label="Value"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.value || ''}
+              onChange={handleTextChange('value')}
+              placeholder="Enter value to compare"
+            />
           </>
         );
         
       case 'email':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Email Provider
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel>Email Provider</InputLabel>
+              <Select
                 value={localSettings.provider || 'smtp'}
-                onChange={(e) => updateSettings('provider', e.target.value)}
+                onChange={handleSelectChange('provider')}
+                label="Email Provider"
               >
-                <option value="smtp">SMTP</option>
-                <option value="sendgrid">SendGrid</option>
-                <option value="mailchimp">Mailchimp</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Subject Template
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                value={localSettings.subject || ''}
-                onChange={(e) => updateSettings('subject', e.target.value)}
-                placeholder="Enter email subject"
-              />
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Email Template
-              </label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                rows={3}
-                value={localSettings.template || ''}
-                onChange={(e) => updateSettings('template', e.target.value)}
-                placeholder="Enter email template"
-              />
-            </div>
+                <MenuItem value="smtp">SMTP</MenuItem>
+                <MenuItem value="sendgrid">SendGrid</MenuItem>
+                <MenuItem value="mailchimp">Mailchimp</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              size="small"
+              label="Subject Template"
+              variant="outlined"
+              margin="normal"
+              value={localSettings.subject || ''}
+              onChange={handleTextChange('subject')}
+              placeholder="Enter email subject"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Email Template"
+              variant="outlined"
+              margin="normal"
+              multiline
+              rows={3}
+              value={localSettings.template || ''}
+              onChange={handleTextChange('template')}
+              placeholder="Enter email template"
+            />
           </>
         );
         
       case 'sms':
         return (
           <>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                SMS Provider
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            <FormControl fullWidth margin="normal" size="small">
+              <InputLabel>SMS Provider</InputLabel>
+              <Select
                 value={localSettings.provider || 'twilio'}
-                onChange={(e) => updateSettings('provider', e.target.value)}
+                onChange={handleSelectChange('provider')}
+                label="SMS Provider"
               >
-                <option value="twilio">Twilio</option>
-                <option value="messagebird">MessageBird</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Message Template
-              </label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                rows={3}
-                value={localSettings.template || ''}
-                onChange={(e) => updateSettings('template', e.target.value)}
-                placeholder="Enter SMS template"
-              />
-            </div>
+                <MenuItem value="twilio">Twilio</MenuItem>
+                <MenuItem value="messagebird">MessageBird</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              size="small"
+              label="Message Template"
+              variant="outlined"
+              margin="normal"
+              multiline
+              rows={3}
+              value={localSettings.template || ''}
+              onChange={handleTextChange('template')}
+              placeholder="Enter SMS template"
+            />
           </>
         );
         
       default:
         return (
-          <div className="text-sm text-gray-500">
+          <Typography variant="body2" color="text.secondary">
             No specific settings available for this node type.
-          </div>
+          </Typography>
         );
     }
   };
   
   return (
-    <div className="properties-panel animate-slide-in-right">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Node Properties</h3>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-full hover:bg-gray-100"
-        >
-          <X size={18} className="text-gray-500" />
-        </button>
-      </div>
+    <PanelContainer>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">Node Properties</Typography>
+        <IconButton size="small" onClick={onClose}>
+          <Close fontSize="small" />
+        </IconButton>
+      </Box>
       
-      <div className="mb-4 p-3 bg-gray-50 rounded-md">
-        <div className="flex items-center mb-2">
-          <div 
-            className="w-4 h-4 rounded-full mr-2" 
-            style={{ backgroundColor: (selectedNode.data?.color as string) || '#94a3b8' }}
-          ></div>
-          <h4 className="font-medium">{(selectedNode.data?.label as string) || 'Unknown Node'}</h4>
-        </div>
-        <div className="text-xs text-gray-500">
-          {(selectedNode.data?.description as string) || 'No description available'}
-        </div>
-      </div>
+      <NodeInfoCard>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <NodeColorIndicator bgcolor={String(selectedNode.data?.color) || '#94a3b8'} />
+          <Typography variant="subtitle2">
+            {String(selectedNode.data?.label) || 'Unknown Node'}
+          </Typography>
+        </Box>
+        <Typography variant="caption" color="text.secondary">
+          {String(selectedNode.data?.description) || 'No description available'}
+        </Typography>
+      </NodeInfoCard>
       
-      <div className="mb-4">
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Node Name
-        </label>
-        <input
-          type="text"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          value={(selectedNode.data?.label as string) || ''}
-          onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, label: e.target.value })}
-          placeholder="Enter node name"
-        />
-      </div>
+      <TextField
+        fullWidth
+        size="small"
+        label="Node Name"
+        variant="outlined"
+        margin="normal"
+        value={String(selectedNode.data?.label) || ''}
+        onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, label: e.target.value })}
+        placeholder="Enter node name"
+      />
       
-      <div className="mb-4">
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          rows={2}
-          value={(selectedNode.data?.description as string) || ''}
-          onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, description: e.target.value })}
-          placeholder="Enter description"
-        />
-      </div>
+      <TextField
+        fullWidth
+        size="small"
+        label="Description"
+        variant="outlined"
+        margin="normal"
+        multiline
+        rows={2}
+        value={String(selectedNode.data?.description) || ''}
+        onChange={(e) => onChange(selectedNode.id, { ...selectedNode.data, description: e.target.value })}
+        placeholder="Enter description"
+      />
       
-      <div className="border-t border-gray-200 pt-4 mb-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Node Settings</h4>
-        {renderSettings()}
-      </div>
+      <Divider sx={{ my: 2 }} />
       
-      <div className="border-t border-gray-200 pt-4">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>Node ID: {selectedNode.id}</span>
-          <span>Type: {selectedNode.type}</span>
-        </div>
-      </div>
-    </div>
+      <Typography variant="subtitle2" gutterBottom>
+        Node Settings
+      </Typography>
+      
+      {renderSettings()}
+      
+      <Divider sx={{ my: 2 }} />
+      
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Chip size="small" label={`ID: ${selectedNode.id.slice(0, 8)}`} variant="outlined" />
+        <Chip size="small" label={`Type: ${selectedNode.type}`} variant="outlined" />
+      </Box>
+    </PanelContainer>
   );
 };
 

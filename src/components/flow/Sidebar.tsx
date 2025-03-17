@@ -1,17 +1,28 @@
 
 import React from 'react';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemIcon, 
+  ListItemText, 
+  Divider, 
+  Paper,
+  styled
+} from '@mui/material';
 import {
-  FileSpreadsheet,
+  TableChart,
   Facebook,
-  Bot,
-  Calendar,
+  SmartToy,
+  CalendarMonth,
   Webhook,
-  SplitSquareVertical,
-  Mail,
+  CallSplit,
+  Email,
   Phone,
   Settings,
-  AlertCircle,
-} from 'lucide-react';
+  ErrorOutline,
+} from '@mui/icons-material';
 
 type NodeCategory = {
   title: string;
@@ -25,6 +36,51 @@ type NodeItem = {
   color: string;
 };
 
+const SidebarContainer = styled(Paper)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  width: '240px',
+  padding: theme.spacing(2),
+  borderRight: `1px solid ${theme.palette.divider}`,
+  zIndex: 10,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
+}));
+
+const NodeItem = styled(ListItem)(({ theme }) => ({
+  padding: theme.spacing(1),
+  marginBottom: theme.spacing(0.5),
+  borderRadius: theme.shape.borderRadius,
+  cursor: 'grab',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const NodeIconContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'bgcolor',
+})<{ bgcolor: string }>(({ theme, bgcolor }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: bgcolor,
+  color: 'white',
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(0.5),
+  width: '24px',
+  height: '24px',
+  '& .MuiSvgIcon-root': {
+    fontSize: '14px',
+  },
+}));
+
+const SidebarFooter = styled(Box)(({ theme }) => ({
+  marginTop: 'auto',
+  paddingTop: theme.spacing(2),
+  borderTop: `1px solid ${theme.palette.divider}`,
+}));
+
 const nodeCategories: NodeCategory[] = [
   {
     title: 'Data Sources',
@@ -32,13 +88,13 @@ const nodeCategories: NodeCategory[] = [
       {
         type: 'googleSheets',
         label: 'Google Sheets',
-        icon: <FileSpreadsheet size={14} />,
+        icon: <TableChart fontSize="small" />,
         color: '#34A853',
       },
       {
         type: 'facebookAds',
         label: 'Facebook Ads',
-        icon: <Facebook size={14} />,
+        icon: <Facebook fontSize="small" />,
         color: '#1877F2',
       },
     ],
@@ -49,25 +105,25 @@ const nodeCategories: NodeCategory[] = [
       {
         type: 'aiCall',
         label: 'AI Call',
-        icon: <Bot size={14} />,
+        icon: <SmartToy fontSize="small" />,
         color: '#10B981',
       },
       {
         type: 'calendar',
         label: 'Google Calendar',
-        icon: <Calendar size={14} />,
+        icon: <CalendarMonth fontSize="small" />,
         color: '#4285F4',
       },
       {
         type: 'webhook',
         label: 'Webhook',
-        icon: <Webhook size={14} />,
+        icon: <Webhook fontSize="small" />,
         color: '#8B5CF6',
       },
       {
         type: 'condition',
         label: 'Condition',
-        icon: <SplitSquareVertical size={14} />,
+        icon: <CallSplit fontSize="small" />,
         color: '#F59E0B',
       },
     ],
@@ -78,13 +134,13 @@ const nodeCategories: NodeCategory[] = [
       {
         type: 'email',
         label: 'Send Email',
-        icon: <Mail size={14} />,
+        icon: <Email fontSize="small" />,
         color: '#EC4899',
       },
       {
         type: 'sms',
         label: 'Send SMS',
-        icon: <Phone size={14} />,
+        icon: <Phone fontSize="small" />,
         color: '#6366F1',
       },
     ],
@@ -95,13 +151,13 @@ const nodeCategories: NodeCategory[] = [
       {
         type: 'config',
         label: 'Configuration',
-        icon: <Settings size={14} />,
+        icon: <Settings fontSize="small" />,
         color: '#6B7280',
       },
       {
         type: 'error',
         label: 'Error Handler',
-        icon: <AlertCircle size={14} />,
+        icon: <ErrorOutline fontSize="small" />,
         color: '#EF4444',
       },
     ],
@@ -114,36 +170,49 @@ type SidebarProps = {
 
 const Sidebar: React.FC<SidebarProps> = ({ onDragStart }) => {
   return (
-    <div className="sidebar-container">
-      <h3 className="text-lg font-semibold mb-4">Flow Components</h3>
+    <SidebarContainer elevation={2}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Flow Components
+      </Typography>
       
       {nodeCategories.map((category) => (
-        <div key={category.title} className="sidebar-section">
-          <h4 className="sidebar-section-title">{category.title}</h4>
+        <Box key={category.title} sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+            {category.title}
+          </Typography>
           
-          {category.items.map((item) => (
-            <div
-              key={item.type}
-              className="sidebar-item"
-              onDragStart={(event) => onDragStart(event, item.type)}
-              draggable
-            >
-              <div className="sidebar-item-icon" style={{ backgroundColor: item.color }}>
-                {item.icon}
-              </div>
-              <span className="text-sm">{item.label}</span>
-            </div>
-          ))}
-        </div>
+          <List disablePadding>
+            {category.items.map((item) => (
+              <NodeItem
+                key={item.type}
+                onDragStart={(event) => onDragStart(event, item.type)}
+                draggable
+                disablePadding
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <NodeIconContainer bgcolor={item.color}>
+                    {item.icon}
+                  </NodeIconContainer>
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.label} 
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </NodeItem>
+            ))}
+          </List>
+        </Box>
       ))}
       
-      <div className="mt-auto pt-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500">
-          <p>Drag components to the canvas</p>
-          <p className="mt-1">Connect nodes by dragging between handles</p>
-        </div>
-      </div>
-    </div>
+      <SidebarFooter>
+        <Typography variant="caption" color="text.secondary" paragraph>
+          Drag components to the canvas
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Connect nodes by dragging between handles
+        </Typography>
+      </SidebarFooter>
+    </SidebarContainer>
   );
 };
 

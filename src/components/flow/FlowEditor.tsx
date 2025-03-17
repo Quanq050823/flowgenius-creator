@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import {
   ReactFlow,
@@ -18,6 +17,7 @@ import {
   ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { Box, CssBaseline, LinearProgress, ThemeProvider, createTheme } from '@mui/material';
 
 import Sidebar from './Sidebar';
 import PropertiesPanel from './PropertiesPanel';
@@ -35,7 +35,31 @@ import {
   ConfigNode,
   ErrorNode,
 } from './nodes/NodeTypes';
-import { toast } from '@/components/ui/use-toast';
+import { CustomEdgeData } from './edges/CustomEdge';
+
+// Define theme for MUI
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3b82f6',
+    },
+    secondary: {
+      main: '#10b981',
+    },
+    error: {
+      main: '#ef4444',
+    },
+    warning: {
+      main: '#f59e0b',
+    },
+    info: {
+      main: '#6366f1',
+    },
+    success: {
+      main: '#22c55e',
+    },
+  },
+});
 
 // Define node types
 const nodeTypes = {
@@ -68,6 +92,11 @@ const defaultEdgeOptions = {
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
+
+interface FlowData {
+  nodes: Node[];
+  edges: Edge[];
+}
 
 const FlowEditorContent = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -183,8 +212,8 @@ const FlowEditorContent = () => {
   // Handle connection between nodes
   const onConnect = useCallback(
     (params: Connection) => {
-      // Create a new edge with properly typed data
-      const newEdge = {
+      // Create a new edge with CustomEdgeData
+      const newEdge: Edge<CustomEdgeData> = {
         ...params,
         id: `e_${params.source}_${params.target}_${Date.now()}`,
         data: { label: 'Connection' },
@@ -235,11 +264,7 @@ const FlowEditorContent = () => {
     if (reactFlowInstance) {
       const flowData = reactFlowInstance.toObject();
       localStorage.setItem('flow-data', JSON.stringify(flowData));
-      toast({
-        title: 'Flow Saved',
-        description: 'Your flow has been saved successfully.',
-        variant: 'default',
-      });
+      // MUI toast equivalent will be added
     }
   }, [reactFlowInstance]);
 
@@ -248,37 +273,26 @@ const FlowEditorContent = () => {
     const savedFlow = localStorage.getItem('flow-data');
     if (savedFlow) {
       try {
-        const flowData = JSON.parse(savedFlow);
-        // Handle the edges data properly by ensuring it has the required format
-        const typedNodes = flowData.nodes || [];
-        const typedEdges = (flowData.edges || []).map((edge: any) => ({
-          ...edge,
-          // Ensure each edge has a data property with a label
-          data: edge.data || { label: 'Connection' },
-        }));
+        const flowData = JSON.parse(savedFlow) as FlowData;
         
-        setNodes(typedNodes);
+        // Ensure edges have the correct data format
+        const typedEdges = flowData.edges.map(edge => {
+          return {
+            ...edge,
+            data: edge.data || { label: 'Connection' }
+          } as Edge<CustomEdgeData>;
+        });
+        
+        setNodes(flowData.nodes);
         setEdges(typedEdges);
         
-        toast({
-          title: 'Flow Loaded',
-          description: 'Your saved flow has been loaded successfully.',
-          variant: 'default',
-        });
+        // MUI toast equivalent will be added
       } catch (error) {
         console.error('Error loading flow:', error);
-        toast({
-          title: 'Error Loading Flow',
-          description: 'There was an error loading your flow.',
-          variant: 'destructive',
-        });
+        // MUI toast equivalent will be added
       }
     } else {
-      toast({
-        title: 'No Saved Flow',
-        description: 'There is no saved flow to load.',
-        variant: 'destructive',
-      });
+      // MUI toast equivalent will be added
     }
   }, [setNodes, setEdges]);
 
@@ -297,11 +311,11 @@ const FlowEditorContent = () => {
       link.click();
       document.body.removeChild(link);
       
-      toast({
-        title: 'Flow Exported',
-        description: 'Your flow has been exported as JSON.',
-        variant: 'default',
-      });
+      // toast({
+      //   title: 'Flow Exported',
+      //   description: 'Your flow has been exported as JSON.',
+      //   variant: 'default',
+      // });
     }
   }, [reactFlowInstance]);
 
@@ -311,21 +325,21 @@ const FlowEditorContent = () => {
     setEdges([]);
     setSelectedNode(null);
     setShowPropertiesPanel(false);
-    toast({
-      title: 'Flow Cleared',
-      description: 'Your flow has been cleared.',
-      variant: 'default',
-    });
+    // toast({
+    //   title: 'Flow Cleared',
+    //   description: 'Your flow has been cleared.',
+    //   variant: 'default',
+    // });
   }, [setNodes, setEdges]);
 
   // Simulate running the flow
   const onRun = useCallback(() => {
     if (nodes.length === 0) {
-      toast({
-        title: 'Empty Flow',
-        description: 'Please add nodes to your flow before running.',
-        variant: 'destructive',
-      });
+      // toast({
+      //   title: 'Empty Flow',
+      //   description: 'Please add nodes to your flow before running.',
+      //   variant: 'destructive',
+      // });
       return;
     }
     
@@ -343,23 +357,26 @@ const FlowEditorContent = () => {
       if (currentStep >= totalSteps) {
         clearInterval(interval);
         setIsRunning(false);
-        toast({
-          title: 'Flow Execution Complete',
-          description: 'Your flow has been executed successfully.',
-          variant: 'default',
-        });
+        // toast({
+        //   title: 'Flow Execution Complete',
+        //   description: 'Your flow has been executed successfully.',
+        //   variant: 'default',
+        // });
       }
     }, 150);
     
   }, [nodes]);
 
   return (
-    <div className="w-full h-screen flex relative">
+    <Box sx={{ width: '100%', height: '100vh', display: 'flex', position: 'relative' }}>
       {/* Sidebar with node types */}
       <Sidebar onDragStart={onDragStart} />
       
       {/* Flow editor */}
-      <div className="flex-grow h-full" ref={reactFlowWrapper}>
+      <Box
+        ref={reactFlowWrapper}
+        sx={{ flexGrow: 1, height: '100%' }}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -406,9 +423,9 @@ const FlowEditorContent = () => {
           
           {/* Flow execution progress bar */}
           {isRunning && (
-            <div className="flow-progress-bar">
-              <div className="flow-progress-indicator" style={{ width: `${progressPercent}%` }}></div>
-            </div>
+            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20 }}>
+              <LinearProgress variant="determinate" value={progressPercent} />
+            </Box>
           )}
           
           {/* Flow toolbar */}
@@ -422,7 +439,7 @@ const FlowEditorContent = () => {
             />
           </Panel>
         </ReactFlow>
-      </div>
+      </Box>
       
       {/* Properties panel */}
       {showPropertiesPanel && (
@@ -432,18 +449,21 @@ const FlowEditorContent = () => {
           onClose={() => setShowPropertiesPanel(false)}
         />
       )}
-    </div>
+    </Box>
   );
 };
 
-// Wrap the component with ReactFlowProvider
+// Wrap the component with ReactFlowProvider and ThemeProvider
 const FlowEditor: React.FC = () => {
   return (
-    <div className="h-screen w-full overflow-hidden bg-gray-50">
-      <ReactFlowProvider>
-        <FlowEditorContent />
-      </ReactFlowProvider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ height: '100vh', width: '100%', overflow: 'hidden', bgcolor: 'grey.50' }}>
+        <ReactFlowProvider>
+          <FlowEditorContent />
+        </ReactFlowProvider>
+      </Box>
+    </ThemeProvider>
   );
 };
 

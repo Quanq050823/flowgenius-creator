@@ -2,17 +2,17 @@
 import { memo } from 'react';
 import BaseNode from './BaseNode';
 import { 
-  FileSpreadsheet, 
-  Facebook, 
-  Bot, 
-  Calendar, 
-  Webhook, 
-  SplitSquareVertical, 
-  Mail, 
-  Phone, 
-  Settings, 
-  AlertCircle 
-} from 'lucide-react';
+  TableChart,
+  Facebook,
+  SmartToy,
+  CalendarMonth,
+  Webhook,
+  CallSplit,
+  Email,
+  Phone,
+  Settings,
+  ErrorOutline
+} from '@mui/icons-material';
 
 // Lead Input Nodes
 export const GoogleSheetsNode = memo(({ data, selected, id }: any) => {
@@ -21,7 +21,7 @@ export const GoogleSheetsNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Google Sheets',
-        icon: <FileSpreadsheet size={16} />,
+        icon: <TableChart fontSize="small" />,
         type: 'Input',
         subType: 'Sheets',
         color: '#34A853',
@@ -38,7 +38,7 @@ export const FacebookAdsNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Facebook Ads',
-        icon: <Facebook size={16} />,
+        icon: <Facebook fontSize="small" />,
         type: 'Input',
         subType: 'Ads',
         color: '#1877F2',
@@ -56,7 +56,7 @@ export const AICallNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'AI Call',
-        icon: <Bot size={16} />,
+        icon: <SmartToy fontSize="small" />,
         type: 'Process',
         subType: 'AI',
         color: '#10B981',
@@ -73,7 +73,7 @@ export const CalendarNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Google Calendar',
-        icon: <Calendar size={16} />,
+        icon: <CalendarMonth fontSize="small" />,
         type: 'Process',
         subType: 'Calendar',
         color: '#4285F4',
@@ -90,7 +90,7 @@ export const WebhookNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Webhook',
-        icon: <Webhook size={16} />,
+        icon: <Webhook fontSize="small" />,
         type: 'Process',
         subType: 'API',
         color: '#8B5CF6',
@@ -107,7 +107,7 @@ export const ConditionNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Condition',
-        icon: <SplitSquareVertical size={16} />,
+        icon: <CallSplit fontSize="small" />,
         type: 'Logic',
         subType: 'Condition',
         color: '#F59E0B',
@@ -126,7 +126,7 @@ export const EmailNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Send Email',
-        icon: <Mail size={16} />,
+        icon: <Email fontSize="small" />,
         type: 'Action',
         subType: 'Email',
         color: '#EC4899',
@@ -143,7 +143,7 @@ export const SMSNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Send SMS',
-        icon: <Phone size={16} />,
+        icon: <Phone fontSize="small" />,
         type: 'Action',
         subType: 'SMS',
         color: '#6366F1',
@@ -160,7 +160,7 @@ export const ConfigNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Configuration',
-        icon: <Settings size={16} />,
+        icon: <Settings fontSize="small" />,
         type: 'Settings',
         color: '#6B7280',
       }}
@@ -176,7 +176,7 @@ export const ErrorNode = memo(({ data, selected, id }: any) => {
       data={{
         ...data,
         label: 'Error Handler',
-        icon: <AlertCircle size={16} />,
+        icon: <ErrorOutline fontSize="small" />,
         type: 'Error',
         color: '#EF4444',
       }}
