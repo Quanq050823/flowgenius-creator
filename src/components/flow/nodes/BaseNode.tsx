@@ -1,3 +1,4 @@
+
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Box, Paper, Typography, Chip, Stack } from '@mui/material';
@@ -25,23 +26,20 @@ const NodeContainer = styled(Paper, {
   flexDirection: 'column',
   padding: theme.spacing(1.5),
   width: '200px',
-  border: selected ? `2px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
-  boxShadow: selected 
-    ? `0 0 0 4px ${theme.palette.primary.main}20, ${theme.shadows[3]}`
-    : theme.shadows[2],
-  borderRadius: '12px',
-  transition: theme.transitions.create(['box-shadow', 'border-color', 'transform'], {
-    duration: theme.transitions.duration.shorter,
+  border: selected ? `1px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
+  boxShadow: selected ? theme.shadows[3] : theme.shadows[1],
+  borderRadius: theme.shape.borderRadius,
+  transition: theme.transitions.create(['box-shadow', 'border-color'], {
+    duration: theme.transitions.duration.short,
   }),
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
-  },
   animation: selected ? 'fadeIn 0.3s ease-out' : 'none',
+  '&.selected': {
+    borderColor: theme.palette.primary.main,
+  },
   '@keyframes fadeIn': {
     from: {
-      opacity: 0.5,
-      transform: 'scale(0.95)',
+      opacity: 0,
+      transform: 'scale(0.9)',
     },
     to: {
       opacity: 1,
@@ -64,15 +62,11 @@ const NodeIcon = styled(Box, {
   justifyContent: 'center',
   backgroundColor: bgcolor || theme.palette.grey[400],
   color: 'white',
-  borderRadius: '12px',
-  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(0.5),
   marginRight: theme.spacing(1),
-  width: '36px',
-  height: '36px',
-  boxShadow: `0 2px 4px ${bgcolor}40 || ${theme.palette.grey[400]}40`,
-  '& svg': {
-    fontSize: '1.25rem',
-  },
+  width: '28px',
+  height: '28px',
 }));
 
 const NodeFooter = styled(Box)(({ theme }) => ({
@@ -85,18 +79,13 @@ const NodeFooter = styled(Box)(({ theme }) => ({
 }));
 
 const StyledHandle = styled(Handle)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  border: `2px solid ${theme.palette.primary.main}`,
-  width: '12px',
-  height: '12px',
-  borderRadius: '6px',
-  transition: theme.transitions.create(['background-color', 'transform', 'box-shadow'], {
-    duration: theme.transitions.duration.shorter,
-  }),
+  background: theme.palette.grey[300],
+  border: `2px solid ${theme.palette.grey[400]}`,
+  width: '8px',
+  height: '8px',
   '&:hover': {
-    transform: 'scale(1.2)',
-    backgroundColor: theme.palette.primary.light,
-    boxShadow: `0 0 0 4px ${theme.palette.primary.main}20`,
+    background: 'white',
+    borderColor: theme.palette.primary.main,
   },
 }));
 
