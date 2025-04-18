@@ -24,68 +24,63 @@ const NodeContainer = styled(Paper, {
 })<{ selected?: boolean; nodeColor?: string }>(({ theme, selected, nodeColor }) => ({
   display: 'flex',
   flexDirection: 'column',
-  padding: theme.spacing(1.5),
-  width: '200px',
-  border: selected ? `1px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
-  boxShadow: selected ? theme.shadows[3] : theme.shadows[1],
-  borderRadius: theme.shape.borderRadius,
-  transition: theme.transitions.create(['box-shadow', 'border-color'], {
-    duration: theme.transitions.duration.short,
-  }),
-  animation: selected ? 'fadeIn 0.3s ease-out' : 'none',
-  '&.selected': {
-    borderColor: theme.palette.primary.main,
-  },
-  '@keyframes fadeIn': {
-    from: {
-      opacity: 0,
-      transform: 'scale(0.9)',
-    },
-    to: {
-      opacity: 1,
-      transform: 'scale(1)',
-    },
-  },
-}));
-
-const NodeHeader = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  marginBottom: theme.spacing(1),
-}));
-
-const NodeIcon = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'bgcolor',
-})<{ bgcolor?: string }>(({ theme, bgcolor }) => ({
-  display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: bgcolor || theme.palette.grey[400],
-  color: 'white',
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(0.5),
-  marginRight: theme.spacing(1),
-  width: '28px',
-  height: '28px',
+  width: '80px',
+  height: '80px',
+  borderRadius: '50%',
+  backgroundColor: nodeColor || theme.palette.grey[300],
+  position: 'relative',
+  transition: 'all 0.2s ease-in-out',
+  cursor: 'grab',
+  boxShadow: selected 
+    ? `0 0 0 2px ${theme.palette.primary.main}, ${theme.shadows[4]}`
+    : theme.shadows[2],
+  
+  '&:hover': {
+    boxShadow: `0 0 0 2px ${nodeColor || theme.palette.grey[300]}, ${theme.shadows[6]}`,
+    transform: 'scale(1.02)',
+    
+    '& .node-label': {
+      opacity: 1,
+      transform: 'translateY(0)',
+    }
+  },
+
+  '& .MuiSvgIcon-root': {
+    fontSize: '24px',
+    color: 'white',
+  },
 }));
 
-const NodeFooter = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  marginTop: theme.spacing(1.5),
-  paddingTop: theme.spacing(0.75),
-  borderTop: `1px solid ${theme.palette.divider}`,
+const NodeLabel = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '100%',
+  left: '50%',
+  transform: 'translateX(-50%) translateY(5px)',
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  color: 'white',
+  padding: '4px 8px',
+  borderRadius: '4px',
+  fontSize: '12px',
+  whiteSpace: 'nowrap',
+  opacity: 0,
+  transition: 'all 0.2s ease-in-out',
+  marginTop: '4px',
+  pointerEvents: 'none',
 }));
 
 const StyledHandle = styled(Handle)(({ theme }) => ({
-  background: theme.palette.grey[300],
-  border: `2px solid ${theme.palette.grey[400]}`,
   width: '8px',
   height: '8px',
+  backgroundColor: '#fff',
+  border: '2px solid #778899',
+  transition: 'all 0.2s ease',
+  
   '&:hover': {
-    background: 'white',
-    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.dark,
+    transform: 'scale(1.2)',
   },
 }));
 
@@ -98,11 +93,10 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
   
   // Calculate positions for multiple handles
   const getHandlePositions = (count: number) => {
-    if (count === 1) return [0.5]; // Center if only one
-    
+    if (count === 1) return [0.5];
     const positions: number[] = [];
     for (let i = 0; i < count; i++) {
-      positions.push((i / (count - 1)) * 0.8 + 0.1); // Distribute between 0.1 and 0.9
+      positions.push((i / (count - 1)) * 0.8 + 0.1);
     }
     return positions;
   };
@@ -111,59 +105,13 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
   const outputPositions = getHandlePositions(outputCount);
 
   return (
-    <NodeContainer selected={selected} className={selected ? 'selected fade-in' : ''}>
-      <NodeHeader>
-        <NodeIcon bgcolor={nodeColor}>
-          {data.icon || '●'}
-        </NodeIcon>
-        <Typography variant="subtitle2" noWrap sx={{ flex: 1 }}>
+    <Box sx={{ position: 'relative' }}>
+      <NodeContainer selected={selected} nodeColor={nodeColor}>
+        {data.icon}
+        <NodeLabel className="node-label">
           {data.label}
-        </Typography>
-      </NodeHeader>
-      
-      <Box sx={{ mb: 1 }}>
-        {data.description && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            {data.description}
-          </Typography>
-        )}
-        <Stack direction="row" spacing={0.5}>
-          <Chip 
-            label={data.type} 
-            size="small" 
-            sx={{ 
-              bgcolor: 'grey.100', 
-              color: 'text.secondary',
-              height: '20px',
-              '& .MuiChip-label': {
-                fontSize: '0.625rem',
-                px: 1,
-              }
-            }} 
-          />
-          {data.subType && (
-            <Chip 
-              label={data.subType} 
-              size="small" 
-              sx={{ 
-                bgcolor: 'grey.100', 
-                color: 'text.secondary',
-                height: '20px',
-                '& .MuiChip-label': {
-                  fontSize: '0.625rem',
-                  px: 1,
-                }
-              }} 
-            />
-          )}
-        </Stack>
-      </Box>
-      
-      <NodeFooter>
-        <Typography variant="caption" color="text.secondary">
-          ID: {id.slice(0, 8)}
-        </Typography>
-      </NodeFooter>
+        </NodeLabel>
+      </NodeContainer>
       
       {/* Input Handles */}
       {inputPositions.map((pos, index) => (
@@ -172,7 +120,7 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
           type="target"
           position={Position.Left}
           id={`input-${index}`}
-          style={{ left: 0, top: `${pos * 100}%` }}
+          style={{ left: -4, top: `${pos * 100}%` }}
         />
       ))}
       
@@ -183,10 +131,10 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
           type="source"
           position={Position.Right}
           id={`output-${index}`}
-          style={{ right: 0, top: `${pos * 100}%` }}
+          style={{ right: -4, top: `${pos * 100}%` }}
         />
       ))}
-    </NodeContainer>
+    </Box>
   );
 };
 
