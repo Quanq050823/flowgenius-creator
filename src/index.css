@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -103,55 +102,59 @@
 
 /* React Flow Styles */
 .react-flow__node {
-  @apply rounded-lg transition-all duration-200 ease-in-out;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-}
-
-.react-flow__node-custom {
-  @apply bg-flow-node-bg border border-flow-node-border shadow-node flex flex-col;
-  padding: 12px;
-  border-radius: 8px;
-  width: 200px;
-}
-
-.react-flow__node.selected {
-  @apply border-primary shadow-node-selected;
-}
-
-.react-flow__handle {
-  @apply bg-flow-handle border-2 border-flow-handle-border transition-all duration-200;
-  width: 8px;
-  height: 8px;
-}
-
-.react-flow__handle:hover {
-  @apply bg-white border-primary;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .react-flow__edge-path {
-  @apply stroke-flow-edge;
+  stroke: #b1b1b7;
   stroke-width: 2;
+  transition: stroke 0.2s ease-in-out, stroke-width 0.2s ease-in-out;
 }
 
-.react-flow__edge.selected .react-flow__edge-path {
-  @apply stroke-flow-edge-selected;
-  stroke-width: 2.5;
-}
-
-.react-flow__edge-text {
-  @apply fill-flow-edge-label text-xs font-medium;
+.react-flow__edge.animated path {
+  stroke-dasharray: 5,5;
+  animation: flowAnimation 30s linear infinite;
 }
 
 .react-flow__controls {
-  @apply rounded-lg overflow-hidden shadow-md;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .react-flow__controls-button {
-  @apply border border-gray-200 bg-white hover:bg-gray-50 text-gray-700;
+  background: white;
+  border: none;
+  border-bottom: 1px solid #eee;
+  box-shadow: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.react-flow__controls-button:hover {
+  background: #f5f5f5;
+  transform: translateY(-1px);
 }
 
 .react-flow__minimap {
-  @apply rounded-lg overflow-hidden border border-gray-200 shadow-md;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes flowAnimation {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .react-flow__attribution {

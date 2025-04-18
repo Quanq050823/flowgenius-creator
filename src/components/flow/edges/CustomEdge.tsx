@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BaseEdge,
@@ -9,12 +10,10 @@ import {
 import { Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-// Define the interface for edge data that extends Record<string, unknown>
 export interface CustomEdgeData extends Record<string, unknown> {
   label?: string;
 }
 
-// Define the edge props that extend the base EdgeProps
 export interface CustomEdgeProps extends Omit<EdgeProps, 'data'> {
   data?: CustomEdgeData;
 }
@@ -52,6 +51,19 @@ const EdgeLabel = styled(Paper)(({ theme }) => ({
   },
 }));
 
+const DottedPath = styled('path')({
+  strokeDasharray: '5,5',
+  animation: 'flowAnimation 30s linear infinite',
+  '@keyframes flowAnimation': {
+    from: {
+      strokeDashoffset: 0,
+    },
+    to: {
+      strokeDashoffset: -100,
+    },
+  },
+});
+
 const CustomEdge = ({
   id,
   sourceX,
@@ -81,7 +93,14 @@ const CustomEdge = ({
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge path="" style={style}>
+        <DottedPath
+          d={edgePath}
+          fill="none"
+          strokeWidth={2}
+          stroke="#b1b1b7"
+        />
+      </BaseEdge>
       <EdgeLabelRenderer>
         <Box
           sx={{
@@ -91,6 +110,7 @@ const CustomEdge = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            gap: 1,
           }}
           className="nodrag nopan"
         >
