@@ -37,7 +37,6 @@ import {
 } from './nodes/NodeTypes';
 import { CustomEdgeData } from './edges/CustomEdge';
 
-// Define theme for MUI
 const theme = createTheme({
   palette: {
     primary: {
@@ -61,7 +60,6 @@ const theme = createTheme({
   },
 });
 
-// Define node types
 const nodeTypes = {
   googleSheets: GoogleSheetsNode,
   facebookAds: FacebookAdsNode,
@@ -75,7 +73,6 @@ const nodeTypes = {
   error: ErrorNode,
 };
 
-// Define edge types
 const edgeTypes = {
   custom: CustomEdge,
 };
@@ -88,6 +85,10 @@ const defaultEdgeOptions = {
     height: 20,
   },
   animated: true,
+  style: {
+    strokeWidth: 2,
+    stroke: '#b1b1b7',
+  },
 };
 
 const initialNodes: Node[] = [];
@@ -110,7 +111,6 @@ const FlowEditorContent = () => {
 
   const reactFlowUtil = useReactFlow();
 
-  // Handle node drag from sidebar
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -123,18 +123,15 @@ const FlowEditorContent = () => {
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
 
-      // Check if the dropped element is valid
       if (typeof type === 'undefined' || !type || !reactFlowBounds || !reactFlowInstance) {
         return;
       }
 
-      // Use screenToFlowPosition instead of project
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
 
-      // Create a unique ID
       const id = `${type}_${Date.now()}`;
 
       const newNode: Node = {
@@ -153,7 +150,6 @@ const FlowEditorContent = () => {
     [reactFlowInstance, setNodes]
   );
 
-  // Helper function to get node label based on type
   const getNodeLabel = (type: string): string => {
     switch (type) {
       case 'googleSheets':
@@ -181,7 +177,6 @@ const FlowEditorContent = () => {
     }
   };
 
-  // Helper function to get node description based on type
   const getNodeDescription = (type: string): string => {
     switch (type) {
       case 'googleSheets':
@@ -209,21 +204,18 @@ const FlowEditorContent = () => {
     }
   };
 
-  // Handle connection between nodes
   const onConnect = useCallback(
     (params: Connection) => {
-      // Create a new edge with CustomEdgeData
       const newEdge: Edge<CustomEdgeData> = {
         ...params,
         id: `e_${params.source}_${params.target}_${Date.now()}`,
-        data: { label: 'Connection' },
+        data: { label: 'Connection' } as CustomEdgeData,
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
     [setEdges]
   );
 
-  // Handle node selection
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
       setSelectedNode(node);
@@ -232,13 +224,11 @@ const FlowEditorContent = () => {
     []
   );
 
-  // Handle background click (deselect nodes)
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
     setShowPropertiesPanel(false);
   }, []);
 
-  // Update node data when properties change
   const onNodeDataChange = useCallback(
     (id: string, data: any) => {
       setNodes((nds) =>
@@ -253,50 +243,36 @@ const FlowEditorContent = () => {
     [setNodes]
   );
 
-  // Handle drag start from sidebar
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  // Save the current flow
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flowData = reactFlowInstance.toObject();
       localStorage.setItem('flow-data', JSON.stringify(flowData));
-      // MUI toast equivalent will be added
     }
   }, [reactFlowInstance]);
 
-  // Load a saved flow
   const onLoad = useCallback(() => {
     const savedFlow = localStorage.getItem('flow-data');
     if (savedFlow) {
       try {
         const flowData = JSON.parse(savedFlow) as FlowData;
-        
-        // Ensure edges have the correct data format
-        const typedEdges = flowData.edges.map(edge => {
-          return {
-            ...edge,
-            data: edge.data || { label: 'Connection' }
-          } as Edge<CustomEdgeData>;
-        });
+        const typedEdges = flowData.edges.map(edge => ({
+          ...edge,
+          data: edge.data || { label: 'Connection' }
+        })) as Edge<CustomEdgeData>[];
         
         setNodes(flowData.nodes);
         setEdges(typedEdges);
-        
-        // MUI toast equivalent will be added
       } catch (error) {
         console.error('Error loading flow:', error);
-        // MUI toast equivalent will be added
       }
-    } else {
-      // MUI toast equivalent will be added
     }
   }, [setNodes, setEdges]);
 
-  // Export flow as JSON
   const onExport = useCallback(() => {
     if (reactFlowInstance) {
       const flowData = reactFlowInstance.toObject();
@@ -310,43 +286,24 @@ const FlowEditorContent = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // toast({
-      //   title: 'Flow Exported',
-      //   description: 'Your flow has been exported as JSON.',
-      //   variant: 'default',
-      // });
     }
   }, [reactFlowInstance]);
 
-  // Clear the current flow
   const onClear = useCallback(() => {
     setNodes([]);
     setEdges([]);
     setSelectedNode(null);
     setShowPropertiesPanel(false);
-    // toast({
-    //   title: 'Flow Cleared',
-    //   description: 'Your flow has been cleared.',
-    //   variant: 'default',
-    // });
   }, [setNodes, setEdges]);
 
-  // Simulate running the flow
   const onRun = useCallback(() => {
     if (nodes.length === 0) {
-      // toast({
-      //   title: 'Empty Flow',
-      //   description: 'Please add nodes to your flow before running.',
-      //   variant: 'destructive',
-      // });
       return;
     }
     
     setIsRunning(true);
     setProgressPercent(0);
     
-    // Simulate progress
     const totalSteps = 20;
     let currentStep = 0;
     
@@ -357,22 +314,14 @@ const FlowEditorContent = () => {
       if (currentStep >= totalSteps) {
         clearInterval(interval);
         setIsRunning(false);
-        // toast({
-        //   title: 'Flow Execution Complete',
-        //   description: 'Your flow has been executed successfully.',
-        //   variant: 'default',
-        // });
       }
     }, 150);
-    
   }, [nodes]);
 
   return (
     <Box sx={{ width: '100%', height: '100vh', display: 'flex', position: 'relative' }}>
-      {/* Sidebar with node types */}
       <Sidebar onDragStart={onDragStart} />
       
-      {/* Flow editor */}
       <Box
         ref={reactFlowWrapper}
         sx={{ flexGrow: 1, height: '100%' }}
@@ -421,14 +370,12 @@ const FlowEditorContent = () => {
             maskColor="rgba(240, 240, 240, 0.6)"
           />
           
-          {/* Flow execution progress bar */}
           {isRunning && (
             <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20 }}>
               <LinearProgress variant="determinate" value={progressPercent} />
             </Box>
           )}
           
-          {/* Flow toolbar */}
           <Panel position="top-right">
             <FlowToolbar 
               onSave={onSave}
@@ -441,7 +388,6 @@ const FlowEditorContent = () => {
         </ReactFlow>
       </Box>
       
-      {/* Properties panel */}
       {showPropertiesPanel && (
         <PropertiesPanel 
           selectedNode={selectedNode}
@@ -453,7 +399,6 @@ const FlowEditorContent = () => {
   );
 };
 
-// Wrap the component with ReactFlowProvider and ThemeProvider
 const FlowEditor: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>

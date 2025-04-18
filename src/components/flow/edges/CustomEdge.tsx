@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BaseEdge,
@@ -10,8 +9,8 @@ import {
 import { Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-// Define the interface for edge data
-export interface CustomEdgeData {
+// Define the interface for edge data that extends Record<string, unknown>
+export interface CustomEdgeData extends Record<string, unknown> {
   label?: string;
 }
 
@@ -26,27 +25,31 @@ const EdgeButton = styled(Button)(({ theme }) => ({
   height: '24px',
   padding: 0,
   borderRadius: '50%',
-  backgroundColor: 'white',
+  backgroundColor: theme.palette.background.paper,
   color: theme.palette.grey[500],
-  boxShadow: theme.shadows[1],
+  boxShadow: theme.shadows[2],
   border: `1px solid ${theme.palette.grey[200]}`,
-  marginTop: '4px',
-  marginLeft: 'auto',
-  marginRight: 'auto',
+  transition: theme.transitions.create(['background-color', 'color', 'box-shadow']),
   '&:hover': {
     backgroundColor: theme.palette.grey[50],
-    color: theme.palette.grey[700],
+    color: theme.palette.error.main,
+    boxShadow: theme.shadows[4],
   },
 }));
 
 const EdgeLabel = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(0.5, 1),
-  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  backdropFilter: 'blur(4px)',
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  backdropFilter: 'blur(8px)',
   borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1],
-  border: `1px solid ${theme.palette.grey[100]}`,
+  boxShadow: theme.shadows[2],
+  border: `1px solid ${theme.palette.primary.light}`,
   fontSize: '0.75rem',
+  transition: theme.transitions.create(['transform', 'box-shadow']),
+  '&:hover': {
+    transform: 'scale(1.05)',
+    boxShadow: theme.shadows[4],
+  },
 }));
 
 const CustomEdge = ({
