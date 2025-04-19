@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Box, Paper, Typography, Stack } from '@mui/material';
@@ -38,8 +37,7 @@ const NodeContainer = styled(Paper, {
     : theme.shadows[2],
   
   '&:hover': {
-    backgroundColor: nodeColor ? lighten(nodeColor, 0.15) : theme.palette.grey[200],
-    boxShadow: theme.shadows[6],
+    boxShadow: `0 0 0 3px ${lighten(nodeColor || theme.palette.grey[300], 0.3)}`,
   },
 
   '& .MuiSvgIcon-root': {

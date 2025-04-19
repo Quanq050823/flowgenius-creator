@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BaseEdge,
@@ -9,12 +10,12 @@ import {
 import { Button, Box, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-// Define the interface for edge data that extends Record<string, unknown>
 export interface CustomEdgeData extends Record<string, unknown> {
   label?: string;
+  sourceColor?: string;
+  targetColor?: string;
 }
 
-// Define the edge props that extend the base EdgeProps
 export interface CustomEdgeProps extends Omit<EdgeProps, 'data'> {
   data?: CustomEdgeData;
 }
@@ -37,19 +38,13 @@ const EdgeButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const EdgeLabel = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(0.5, 1),
-  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-  backdropFilter: 'blur(8px)',
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[2],
-  border: `1px solid ${theme.palette.primary.light}`,
-  fontSize: '0.75rem',
-  transition: theme.transitions.create(['transform', 'box-shadow']),
-  '&:hover': {
-    transform: 'scale(1.05)',
-    boxShadow: theme.shadows[4],
-  },
+const EdgeDot = styled('div')<{ $color?: string; $isEndpoint?: boolean }>(({ $color, $isEndpoint }) => ({
+  width: $isEndpoint ? '12px' : '6px',
+  height: $isEndpoint ? '12px' : '6px',
+  backgroundColor: $color || '#94a3b8',
+  borderRadius: '50%',
+  position: 'absolute',
+  transform: 'translate(-50%, -50%)',
 }));
 
 const CustomEdge = ({
@@ -61,7 +56,6 @@ const CustomEdge = ({
   sourcePosition,
   targetPosition,
   style = {},
-  markerEnd,
   data,
 }: CustomEdgeProps) => {
   const { setEdges } = useReactFlow();
@@ -69,9 +63,9 @@ const CustomEdge = ({
     sourceX,
     sourceY,
     sourcePosition,
+    targetPosition,
     targetX,
     targetY,
-    targetPosition,
   });
 
   const onEdgeClick = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -79,32 +73,57 @@ const CustomEdge = ({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
+  // Calculate points along the path for dots
+  const points = [];
+  const numPoints = 8;
+  const sourceColor = data?.sourceColor || '#94a3b8';
+  const targetColor = data?.targetColor || '#94a3b8';
+
+  for (let i = 0; i <= numPoints; i++) {
+    const t = i / numPoints;
+    const x = sourceX + (targetX - sourceX) * t;
+    const y = sourceY + (targetY - sourceY) * t;
+    points.push({ x, y, t });
+  }
+
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      {points.map((point, index) => {
+        const isEndpoint = index === 0 || index === points.length - 1;
+        const color = `rgba(
+          ${parseInt(sourceColor.slice(1, 3), 16) * (1 - point.t) + parseInt(targetColor.slice(1, 3), 16) * point.t},
+          ${parseInt(sourceColor.slice(3, 5), 16) * (1 - point.t) + parseInt(targetColor.slice(3, 5), 16) * point.t},
+          ${parseInt(sourceColor.slice(5, 7), 16) * (1 - point.t) + parseInt(targetColor.slice(5, 7), 16) * point.t}
+        )`;
+
+        return (
+          <EdgeDot
+            key={index}
+            $color={color}
+            $isEndpoint={isEndpoint}
+            style={{
+              left: point.x,
+              top: point.y,
+            }}
+          />
+        );
+      })}
+
       <EdgeLabelRenderer>
         <Box
           sx={{
             position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: 'all',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
           }}
           className="nodrag nopan"
         >
           {data?.label && (
-            <EdgeLabel>
+            <Paper sx={{ p: 0.5, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
               <Typography variant="caption">{data.label}</Typography>
-            </EdgeLabel>
+            </Paper>
           )}
-          <EdgeButton
-            size="small"
-            onClick={onEdgeClick}
-          >
-            ×
-          </EdgeButton>
+          <EdgeButton size="small" onClick={onEdgeClick}>×</EdgeButton>
         </Box>
       </EdgeLabelRenderer>
     </>
