@@ -1,8 +1,10 @@
+
 import React, { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
-import { Box, Paper, Typography, Stack } from '@mui/material';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { Box, Paper, Typography, Stack, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { lighten } from '@mui/material/styles';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 type BaseNodeProps = {
   data: {
@@ -33,15 +35,15 @@ const NodeContainer = styled(Paper, {
   position: 'relative',
   cursor: 'grab',
   boxShadow: selected 
-    ? `0 0 0 2px ${theme.palette.primary.main}, ${theme.shadows[4]}`
+    ? `0 0 0 3px ${theme.palette.primary.main}, ${theme.shadows[4]}`
     : theme.shadows[2],
   
   '&:hover': {
-    boxShadow: `0 0 0 3px ${lighten(nodeColor || theme.palette.grey[300], 0.3)}`,
+    boxShadow: `0 0 0 5px ${lighten(nodeColor || theme.palette.grey[300], 0.3)}`,
   },
 
   '& .MuiSvgIcon-root': {
-    fontSize: '32px',
+    fontSize: '38px',
     color: 'white',
   },
 }));
@@ -68,6 +70,7 @@ const StyledHandle = styled(Handle)(({ theme }) => ({
   backgroundColor: '#fff',
   border: '2px solid #778899',
   transition: 'all 0.2s ease',
+  zIndex: 10,
   
   '&:hover': {
     backgroundColor: theme.palette.primary.main,
@@ -75,6 +78,34 @@ const StyledHandle = styled(Handle)(({ theme }) => ({
     transform: 'scale(1.2)',
   },
 }));
+
+const DeleteButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  top: '-8px',
+  right: '-8px',
+  width: '22px',
+  height: '22px',
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.grey[500],
+  padding: 0,
+  minWidth: 0,
+  border: `1px solid ${theme.palette.grey[300]}`,
+  boxShadow: theme.shadows[1],
+  opacity: 0,
+  transition: 'all 0.2s ease',
+  zIndex: 20,
+  '&:hover': {
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.contrastText,
+  },
+}));
+
+const NodeWrapper = styled(Box)({
+  position: 'relative',
+  '&:hover .delete-button': {
+    opacity: 1,
+  },
+});
 
 const getActionName = (type: string): string => {
   switch (type.toLowerCase()) {
@@ -106,6 +137,7 @@ const getActionName = (type: string): string => {
 const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
   const nodeColor = data.color || '#94a3b8';
   const actionName = getActionName(id.split('_')[0]);
+  const { setNodes } = useReactFlow();
   
   const inputCount = data.inputs !== undefined ? data.inputs : 1;
   const outputCount = data.outputs !== undefined ? data.outputs : 1;
@@ -122,8 +154,22 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
   const inputPositions = getHandlePositions(inputCount);
   const outputPositions = getHandlePositions(outputCount);
 
+  const handleDeleteNode = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+  };
+
   return (
-    <Box sx={{ position: 'relative' }}>
+    <NodeWrapper>
+      <DeleteButton 
+        className="delete-button" 
+        onClick={handleDeleteNode} 
+        size="small"
+        aria-label="delete node"
+      >
+        <CloseIcon fontSize="small" />
+      </DeleteButton>
+      
       <NodeContainer selected={selected} nodeColor={nodeColor}>
         {data.icon}
       </NodeContainer>
@@ -156,7 +202,7 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
           style={{ right: -4, top: `${pos * 100}%` }}
         />
       ))}
-    </Box>
+    </NodeWrapper>
   );
 };
 

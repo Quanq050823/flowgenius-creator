@@ -79,16 +79,15 @@ const edgeTypes = {
 
 const defaultEdgeOptions = {
   type: 'custom',
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    width: 20,
-    height: 20,
-  },
-  animated: true,
+  animated: false,
   style: {
     strokeWidth: 2,
     stroke: '#b1b1b7',
   },
+  data: {
+    sourceColor: '#94a3b8',
+    targetColor: '#94a3b8'
+  }
 };
 
 const initialNodes: Node[] = [];
@@ -206,14 +205,26 @@ const FlowEditorContent = () => {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      // Get the source and target nodes to access their colors
+      const sourceNode = reactFlowUtil.getNode(params.source || '');
+      const targetNode = reactFlowUtil.getNode(params.target || '');
+      
+      const sourceColor = sourceNode?.data?.color || '#94a3b8';
+      const targetColor = targetNode?.data?.color || '#94a3b8';
+      
       const newEdge: Edge<CustomEdgeData> = {
         ...params,
         id: `e_${params.source}_${params.target}_${Date.now()}`,
-        data: { label: 'Connection' } as CustomEdgeData,
+        data: { 
+          label: 'Connection',
+          sourceColor,
+          targetColor
+        } as CustomEdgeData,
       };
+      
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [setEdges, reactFlowUtil]
   );
 
   const onNodeClick = useCallback(
@@ -340,6 +351,8 @@ const FlowEditorContent = () => {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
+          connectionMode="loose"
+          connectionRadius={30}
           fitView
           snapToGrid
           snapGrid={[10, 10]}
