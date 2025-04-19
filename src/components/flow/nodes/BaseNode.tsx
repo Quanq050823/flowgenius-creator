@@ -1,8 +1,9 @@
 
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Box, Paper, Typography, Chip, Stack } from '@mui/material';
+import { Box, Paper, Typography, Stack } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { lighten } from '@mui/material/styles';
 
 type BaseNodeProps = {
   data: {
@@ -31,24 +32,18 @@ const NodeContainer = styled(Paper, {
   borderRadius: '50%',
   backgroundColor: nodeColor || theme.palette.grey[300],
   position: 'relative',
-  transition: 'all 0.2s ease-in-out',
   cursor: 'grab',
   boxShadow: selected 
     ? `0 0 0 2px ${theme.palette.primary.main}, ${theme.shadows[4]}`
     : theme.shadows[2],
   
   '&:hover': {
-    boxShadow: `0 0 0 2px ${nodeColor || theme.palette.grey[300]}, ${theme.shadows[6]}`,
-    transform: 'scale(1.02)',
-    
-    '& .node-label': {
-      opacity: 1,
-      transform: 'translateY(0)',
-    }
+    backgroundColor: nodeColor ? lighten(nodeColor, 0.15) : theme.palette.grey[200],
+    boxShadow: theme.shadows[6],
   },
 
   '& .MuiSvgIcon-root': {
-    fontSize: '24px',
+    fontSize: '32px',
     color: 'white',
   },
 }));
@@ -57,17 +52,16 @@ const NodeLabel = styled(Box)(({ theme }) => ({
   position: 'absolute',
   top: '100%',
   left: '50%',
-  transform: 'translateX(-50%) translateY(5px)',
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  color: 'white',
-  padding: '4px 8px',
-  borderRadius: '4px',
-  fontSize: '12px',
-  whiteSpace: 'nowrap',
-  opacity: 0,
-  transition: 'all 0.2s ease-in-out',
-  marginTop: '4px',
-  pointerEvents: 'none',
+  transform: 'translateX(-50%)',
+  textAlign: 'center',
+  marginTop: '8px',
+  width: '120px',
+}));
+
+const ActionLabel = styled(Typography)(({ theme }) => ({
+  fontSize: '11px',
+  color: theme.palette.text.secondary,
+  marginTop: '2px',
 }));
 
 const StyledHandle = styled(Handle)(({ theme }) => ({
@@ -84,14 +78,40 @@ const StyledHandle = styled(Handle)(({ theme }) => ({
   },
 }));
 
+const getActionName = (type: string): string => {
+  switch (type.toLowerCase()) {
+    case 'facebookads':
+      return 'Get Hook Ads';
+    case 'googlesheets':
+      return 'Get Lead';
+    case 'aicall':
+      return 'Process AI';
+    case 'calendar':
+      return 'Schedule Event';
+    case 'webhook':
+      return 'HTTP Request';
+    case 'condition':
+      return 'Branch Logic';
+    case 'email':
+      return 'Send Email';
+    case 'sms':
+      return 'Send Message';
+    case 'config':
+      return 'Configure';
+    case 'error':
+      return 'Handle Error';
+    default:
+      return 'Action';
+  }
+};
+
 const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
   const nodeColor = data.color || '#94a3b8';
+  const actionName = getActionName(id.split('_')[0]);
   
-  // Determine the number of input and output handles
   const inputCount = data.inputs !== undefined ? data.inputs : 1;
   const outputCount = data.outputs !== undefined ? data.outputs : 1;
   
-  // Calculate positions for multiple handles
   const getHandlePositions = (count: number) => {
     if (count === 1) return [0.5];
     const positions: number[] = [];
@@ -108,12 +128,17 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
     <Box sx={{ position: 'relative' }}>
       <NodeContainer selected={selected} nodeColor={nodeColor}>
         {data.icon}
-        <NodeLabel className="node-label">
-          {data.label}
-        </NodeLabel>
       </NodeContainer>
       
-      {/* Input Handles */}
+      <NodeLabel>
+        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+          {data.label}
+        </Typography>
+        <ActionLabel>
+          {actionName}
+        </ActionLabel>
+      </NodeLabel>
+      
       {inputPositions.map((pos, index) => (
         <StyledHandle
           key={`input-${index}`}
@@ -124,7 +149,6 @@ const BaseNode = ({ data, selected, id }: BaseNodeProps) => {
         />
       ))}
       
-      {/* Output Handles */}
       {outputPositions.map((pos, index) => (
         <StyledHandle
           key={`output-${index}`}
